@@ -7,9 +7,11 @@ import javax.validation.constraints.*;
 
 import com.example.employeemanagement.entity.EmployeeStatus;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class EmployeeCreateRequest {
 
     @NotBlank
