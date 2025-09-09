@@ -19,6 +19,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.opencsv.CSVWriter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.List;
+
 import javax.validation.Valid;
 import java.net.URI;
 
@@ -111,6 +118,51 @@ public class EmployeeController {
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/export")
+    @Operation(summary = "Export employees to CSV")
+    @ApiResponse(responseCode = "200", description = "CSV file")
+    public ResponseEntity<byte[]> exportEmployees(
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) EmployeeStatus status,
+            @RequestParam(required = false) String search) {
+        List<Employee> employees = employeeService.getAllEmployees(Pageable.unpaged(), department, status, search).getContent();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream))) {
+            // Header
+            writer.writeNext(new String[]{"ID", "First Name", "Last Name", "Email", "Phone", "Date of Birth", "Hire Date", "Job Title", "Department", "Salary", "Status", "Created At", "Updated At"});
+
+            // Data
+            for (Employee emp : employees) {
+                writer.writeNext(new String[]{
+                        emp.getId().toString(),
+                        emp.getFirstName(),
+                        emp.getLastName(),
+                        emp.getEmail(),
+                        emp.getPhone() != null ? emp.getPhone() : "",
+                        emp.getDateOfBirth() != null ? emp.getDateOfBirth().toString() : "",
+                        emp.getHireDate().toString(),
+                        emp.getJobTitle(),
+                        emp.getDepartment(),
+                        emp.getSalary().toString(),
+                        emp.getStatus().toString(),
+                        emp.getCreatedAt().toString(),
+                        emp.getUpdatedAt().toString()
+                });
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating CSV", e);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        headers.setContentDispositionFormData("attachment", "employees.csv");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(outputStream.toByteArray());
     }
 
 }

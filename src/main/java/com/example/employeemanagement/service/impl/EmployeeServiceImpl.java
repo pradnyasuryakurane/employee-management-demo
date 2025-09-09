@@ -65,7 +65,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             if (search != null) {
                 Predicate firstName = criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), "%" + search.toLowerCase() + "%");
                 Predicate lastName = criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), "%" + search.toLowerCase() + "%");
-                predicates.add(criteriaBuilder.or(firstName, lastName));
+                Predicate email = criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), "%" + search.toLowerCase() + "%");
+                predicates.add(criteriaBuilder.or(firstName, lastName, email));
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
