@@ -1,15 +1,6 @@
 package com.example.employeemanagement.service.impl;
 
-import co    @Override
-    @Transactional
-    public Employee partialUpdateEmployee(Long id, EmployeeUpdateRequest request) {
-        Employee employee = getEmployeeById(id);
-        if (request.getEmail() != null && !employee.getEmail().equalsIgnoreCase(request.getEmail()) && employeeRepository.findByEmailIgnoreCase(request.getEmail()) != null) {
-            throw new EmailAlreadyExistsException("Email already exists: " + request.getEmail());
-        }
-        employeeMapper.partialUpdateEntityFromRequest(request, employee);
-        return employeeRepository.save(employee);
-    }employeemanagement.dto.EmployeeCreateRequest;
+import com.example.employeemanagement.dto.EmployeeCreateRequest;
 import com.example.employeemanagement.dto.EmployeeUpdateRequest;
 import com.example.employeemanagement.entity.Employee;
 import com.example.employeemanagement.entity.EmployeeStatus;
@@ -25,7 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee partialUpdateEmployee(Long id, EmployeeUpdateRequest request) {
         Employee employee = getEmployeeById(id);
         if (request.getEmail() != null && !employee.getEmail().equalsIgnoreCase(request.getEmail()) && employeeRepository.findByEmailIgnoreCase(request.getEmail()) != null) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists: " + request.getEmail());
         }
         employeeMapper.partialUpdateEntityFromRequest(request, employee);
         return employeeRepository.save(employee);

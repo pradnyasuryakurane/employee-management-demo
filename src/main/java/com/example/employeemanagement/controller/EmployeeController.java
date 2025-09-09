@@ -26,7 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.net.URI;
 
 @RestController

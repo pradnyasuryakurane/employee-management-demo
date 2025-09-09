@@ -3,7 +3,7 @@ package com.example.employeemanagement.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 import com.example.employeemanagement.entity.EmployeeStatus;
 
