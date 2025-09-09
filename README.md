@@ -1,5 +1,7 @@
 # Employee Management Demo
 
+[![CI](https://github.com/your-username/employee-management-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/employee-management-demo/actions/workflows/ci.yml)
+
 A comprehensive Spring Boot application for managing employee data with RESTful APIs, JPA, and modern development practices.
 
 ## Overview
