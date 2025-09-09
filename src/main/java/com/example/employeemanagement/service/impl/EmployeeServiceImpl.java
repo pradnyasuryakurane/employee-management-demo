@@ -1,10 +1,20 @@
 package com.example.employeemanagement.service.impl;
 
-import com.example.employeemanagement.dto.EmployeeCreateRequest;
+import co    @Override
+    @Transactional
+    public Employee partialUpdateEmployee(Long id, EmployeeUpdateRequest request) {
+        Employee employee = getEmployeeById(id);
+        if (request.getEmail() != null && !employee.getEmail().equalsIgnoreCase(request.getEmail()) && employeeRepository.findByEmailIgnoreCase(request.getEmail()) != null) {
+            throw new EmailAlreadyExistsException("Email already exists: " + request.getEmail());
+        }
+        employeeMapper.partialUpdateEntityFromRequest(request, employee);
+        return employeeRepository.save(employee);
+    }employeemanagement.dto.EmployeeCreateRequest;
 import com.example.employeemanagement.dto.EmployeeUpdateRequest;
 import com.example.employeemanagement.entity.Employee;
 import com.example.employeemanagement.entity.EmployeeStatus;
-import com.example.employeemanagement.exception.ResourceNotFoundException;
+import com.example.employeemanagement.exception.EmployeeNotFoundException;
+import com.example.employeemanagement.exception.EmailAlreadyExistsException;
 import com.example.employeemanagement.mapper.EmployeeMapper;
 import com.example.employeemanagement.repository.EmployeeRepository;
 import com.example.employeemanagement.service.EmployeeService;
@@ -30,7 +40,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     public Employee createEmployee(EmployeeCreateRequest request) {
         if (employeeRepository.findByEmailIgnoreCase(request.getEmail()) != null) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists: " + request.getEmail());
         }
         Employee employee = employeeMapper.toEntity(request);
         return employeeRepository.save(employee);
@@ -39,7 +49,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee getEmployeeById(Long id) {
         return employeeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
     }
 
     @Override
@@ -67,7 +77,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee updateEmployee(Long id, EmployeeUpdateRequest request) {
         Employee employee = getEmployeeById(id);
         if (request.getEmail() != null && !employee.getEmail().equalsIgnoreCase(request.getEmail()) && employeeRepository.findByEmailIgnoreCase(request.getEmail()) != null) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists: " + request.getEmail());
         }
         employeeMapper.updateEntityFromRequest(request, employee);
         return employeeRepository.save(employee);
