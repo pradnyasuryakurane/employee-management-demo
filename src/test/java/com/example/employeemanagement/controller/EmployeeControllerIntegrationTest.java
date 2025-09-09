@@ -159,9 +159,66 @@ class EmployeeControllerIntegrationTest {
         mockMvc.perform(delete("/api/v1/employees/{id}", employee.getId()))
                 .andExpect(status().isNoContent());
 
-        // Verify soft delete
+        // Verify soft delete - employee should have INACTIVE status and deletedAt set
         Employee deleted = employeeRepository.findById(employee.getId()).orElseThrow();
         assert deleted.getStatus().equals(EmployeeStatus.INACTIVE);
+        assert deleted.getDeletedAt() != null;
+        assert deleted.getDeletedBy() != null;
+    }
+
+    @Test
+    void testRestoreEmployee() throws Exception {
+        // First delete the employee
+        mockMvc.perform(delete("/api/v1/employees/{id}", employee.getId()))
+                .andExpect(status().isNoContent());
+
+        // Verify employee is soft deleted
+        Employee deleted = employeeRepository.findById(employee.getId()).orElseThrow();
+        assert deleted.getStatus().equals(EmployeeStatus.INACTIVE);
+
+        // Now restore the employee
+        mockMvc.perform(put("/api/v1/employees/{id}/restore", employee.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+
+        // Verify employee is restored
+        Employee restored = employeeRepository.findById(employee.getId()).orElseThrow();
+        assert restored.getStatus().equals(EmployeeStatus.ACTIVE);
+        assert restored.getDeletedAt() == null;
+        assert restored.getDeletedBy() == null;
+    }
+
+    @Test
+    void testRestoreNotDeletedEmployee() throws Exception {
+        // Try to restore an employee that is not deleted
+        mockMvc.perform(put("/api/v1/employees/{id}/restore", employee.getId()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testGetAllEmployeesExcludesDeletedByDefault() throws Exception {
+        // Delete one employee
+        mockMvc.perform(delete("/api/v1/employees/{id}", employee.getId()))
+                .andExpect(status().isNoContent());
+
+        // Get all employees without includeInactive flag
+        mockMvc.perform(get("/api/v1/employees"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content").isEmpty()); // Should be empty since both employees are deleted or don't exist
+    }
+
+    @Test
+    void testGetAllEmployeesIncludesDeletedWithFlag() throws Exception {
+        // Delete the employee
+        mockMvc.perform(delete("/api/v1/employees/{id}", employee.getId()))
+                .andExpect(status().isNoContent());
+
+        // Get all employees with includeInactive=true
+        mockMvc.perform(get("/api/v1/employees").param("includeInactive", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].status").value("INACTIVE"));
     }
 
 }
