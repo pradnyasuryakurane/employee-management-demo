@@ -15,10 +15,14 @@ public interface EmployeeService {
 
     Page<Employee> getAllEmployees(Pageable pageable, String department, EmployeeStatus status, String search);
 
+    Page<Employee> getAllEmployees(Pageable pageable, String department, EmployeeStatus status, String search, boolean includeInactive);
+
     Employee updateEmployee(Long id, EmployeeUpdateRequest request);
 
     Employee partialUpdateEmployee(Long id, EmployeeUpdateRequest request);
 
     void deleteEmployee(Long id);
+
+    Employee restoreEmployee(Long id);
 
 }

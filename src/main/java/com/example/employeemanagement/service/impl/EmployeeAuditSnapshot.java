@@ -1,45 +1,30 @@
-package com.example.employeemanagement.dto;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import jakarta.validation.constraints.*;
+package com.example.employeemanagement.service.impl;
 
 import com.example.employeemanagement.entity.EmployeeStatus;
-
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class EmployeeUpdateRequest {
-
-    @Size(max = 50)
+public class EmployeeAuditSnapshot {
+    private Long id;
     private String firstName;
-
-    @Size(max = 50)
     private String lastName;
-
-    @Email
     private String email;
-
     private String phone;
-
     private LocalDate dateOfBirth;
-
     private LocalDate hireDate;
-
     private String jobTitle;
-
     private String department;
-
-    @DecimalMin("0.0")
     private BigDecimal salary;
-
     private EmployeeStatus status;
-
+    private Instant deletedAt;
+    private String deletedBy;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

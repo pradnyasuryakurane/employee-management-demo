@@ -1,11 +1,12 @@
 package com.example.employeemanagement.entity;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -68,5 +69,9 @@ public class Employee {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    private Instant deletedAt;
+
+    private String deletedBy;
 
 }
