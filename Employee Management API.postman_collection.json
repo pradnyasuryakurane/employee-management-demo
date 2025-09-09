@@ -1,0 +1,215 @@
+{
+    "info": {
+        "name": "Employee Management API",
+        "description": "Complete collection for Employee Management REST API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Create Employee",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"+1-555-0123\",\n    \"dateOfBirth\": \"1990-01-01\",\n    \"hireDate\": \"2020-01-01\",\n    \"jobTitle\": \"Software Engineer\",\n    \"department\": \"Engineering\",\n    \"salary\": 75000.00,\n    \"status\": \"ACTIVE\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/employees",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "employees"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Get All Employees",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/employees?page=0&size=10&department=Engineering&status=ACTIVE&search=John",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "employees"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "0"
+                        },
+                        {
+                            "key": "size",
+                            "value": "10"
+                        },
+                        {
+                            "key": "department",
+                            "value": "Engineering"
+                        },
+                        {
+                            "key": "status",
+                            "value": "ACTIVE"
+                        },
+                        {
+                            "key": "search",
+                            "value": "John"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Get Employee by ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/employees/{{employeeId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "employees",
+                        "{{employeeId}}"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Update Employee (Full)",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Smith\",\n    \"email\": \"john.smith@example.com\",\n    \"hireDate\": \"2020-01-01\",\n    \"jobTitle\": \"Senior Engineer\",\n    \"department\": \"Engineering\",\n    \"salary\": 85000,\n    \"status\": \"ACTIVE\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/employees/{{employeeId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "employees",
+                        "{{employeeId}}"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Update Employee (Partial)",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"jobTitle\": \"Lead Engineer\",\n    \"salary\": 95000\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/employees/{{employeeId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "employees",
+                        "{{employeeId}}"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Delete Employee",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/employees/{{employeeId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "employees",
+                        "{{employeeId}}"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Export Employees to CSV",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/employees/export?department=Engineering&status=ACTIVE&search=John",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "employees",
+                        "export"
+                    ],
+                    "query": [
+                        {
+                            "key": "department",
+                            "value": "Engineering"
+                        },
+                        {
+                            "key": "status",
+                            "value": "ACTIVE"
+                        },
+                        {
+                            "key": "search",
+                            "value": "John"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080",
+            "type": "string"
+        },
+        {
+            "key": "employeeId",
+            "value": "1",
+            "type": "string"
+        }
+    ]
+}
