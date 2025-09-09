@@ -8,6 +8,7 @@ import com.example.employeemanagement.exception.EmployeeNotFoundException;
 import com.example.employeemanagement.exception.EmailAlreadyExistsException;
 import com.example.employeemanagement.mapper.EmployeeMapper;
 import com.example.employeemanagement.repository.EmployeeRepository;
+import com.example.employeemanagement.service.AuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,9 @@ class EmployeeServiceImplTest {
 
     @Mock
     private EmployeeMapper employeeMapper;
+
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private EmployeeServiceImpl employeeService;
@@ -173,7 +177,10 @@ class EmployeeServiceImplTest {
         employeeService.deleteEmployee(1L);
 
         assertEquals(EmployeeStatus.INACTIVE, employee.getStatus());
+        assertNotNull(employee.getDeletedAt());
+        assertEquals("system", employee.getDeletedBy());
         verify(employeeRepository).save(employee);
+        verify(auditService).auditEmployeeDelete(any(Employee.class), eq("system"));
     }
 
     @Test
@@ -181,6 +188,41 @@ class EmployeeServiceImplTest {
         when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(EmployeeNotFoundException.class, () -> employeeService.deleteEmployee(1L));
+    }
+
+    @Test
+    void testRestoreEmployee() {
+        // Setup employee as deleted
+        employee.setStatus(EmployeeStatus.INACTIVE);
+        employee.setDeletedAt(java.time.Instant.now());
+        employee.setDeletedBy("system");
+        
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+        when(employeeRepository.save(employee)).thenReturn(employee);
+
+        Employee result = employeeService.restoreEmployee(1L);
+
+        assertEquals(EmployeeStatus.ACTIVE, employee.getStatus());
+        assertNull(employee.getDeletedAt());
+        assertNull(employee.getDeletedBy());
+        verify(employeeRepository).save(employee);
+        verify(auditService).auditEmployeeRestore(any(Employee.class), eq(employee), eq("system"));
+        assertEquals(employee, result);
+    }
+
+    @Test
+    void testRestoreEmployeeNotDeleted() {
+        // Employee is not deleted (deletedAt is null)
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+
+        assertThrows(IllegalStateException.class, () -> employeeService.restoreEmployee(1L));
+    }
+
+    @Test
+    void testRestoreEmployeeNotFound() {
+        when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(EmployeeNotFoundException.class, () -> employeeService.restoreEmployee(1L));
     }
 
 }

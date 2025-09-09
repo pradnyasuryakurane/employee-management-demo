@@ -62,8 +62,9 @@ public class EmployeeController {
             Pageable pageable,
             @RequestParam(required = false) String department,
             @RequestParam(required = false) EmployeeStatus status,
-            @RequestParam(required = false) String search) {
-        Page<Employee> employees = employeeService.getAllEmployees(pageable, department, status, search);
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") boolean includeInactive) {
+        Page<Employee> employees = employeeService.getAllEmployees(pageable, department, status, search, includeInactive);
         Page<EmployeeResponse> responses = employees.map(employeeMapper::toResponse);
         PagedResponse<EmployeeResponse> pagedResponse = PagedResponse.of(responses);
         return ResponseEntity.ok(pagedResponse);
@@ -120,19 +121,33 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/restore")
+    @Operation(summary = "Restore a soft-deleted employee")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Employee restored"),
+            @ApiResponse(responseCode = "400", description = "Employee is not deleted"),
+            @ApiResponse(responseCode = "404", description = "Employee not found")
+    })
+    public ResponseEntity<EmployeeResponse> restoreEmployee(@PathVariable Long id) {
+        Employee employee = employeeService.restoreEmployee(id);
+        EmployeeResponse response = employeeMapper.toResponse(employee);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/export")
     @Operation(summary = "Export employees to CSV")
     @ApiResponse(responseCode = "200", description = "CSV file")
     public ResponseEntity<byte[]> exportEmployees(
             @RequestParam(required = false) String department,
             @RequestParam(required = false) EmployeeStatus status,
-            @RequestParam(required = false) String search) {
-        List<Employee> employees = employeeService.getAllEmployees(Pageable.unpaged(), department, status, search).getContent();
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") boolean includeInactive) {
+        List<Employee> employees = employeeService.getAllEmployees(Pageable.unpaged(), department, status, search, includeInactive).getContent();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream))) {
             // Header
-            writer.writeNext(new String[]{"ID", "First Name", "Last Name", "Email", "Phone", "Date of Birth", "Hire Date", "Job Title", "Department", "Salary", "Status", "Created At", "Updated At"});
+            writer.writeNext(new String[]{"ID", "First Name", "Last Name", "Email", "Phone", "Date of Birth", "Hire Date", "Job Title", "Department", "Salary", "Status", "Created At", "Updated At", "Deleted At", "Deleted By"});
 
             // Data
             for (Employee emp : employees) {
@@ -149,7 +164,9 @@ public class EmployeeController {
                         emp.getSalary().toString(),
                         emp.getStatus().toString(),
                         emp.getCreatedAt().toString(),
-                        emp.getUpdatedAt().toString()
+                        emp.getUpdatedAt().toString(),
+                        emp.getDeletedAt() != null ? emp.getDeletedAt().toString() : "",
+                        emp.getDeletedBy() != null ? emp.getDeletedBy() : ""
                 });
             }
         } catch (Exception e) {

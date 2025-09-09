@@ -1,6 +1,7 @@
 package com.example.employeemanagement.entity;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -68,5 +69,9 @@ public class Employee {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    private Instant deletedAt;
+
+    private String deletedBy;
 
 }
